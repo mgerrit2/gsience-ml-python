@@ -1,0 +1,21 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="PyPackageRequirementsInspection" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="ignoredPackages">
+        <list>
+          <option value="blosc" />
+          <option value="diskcache" />
+          <option value="h5py" />
+          <option value="jupyter" />
+          <option value="matplotlib" />
+          <option value="Pillow" />
+          <option value="scikit-image" />
+          <option value="scipy" />
+          <option value="SimpleITK" />
+          <option value="tensorflow" />
+        </list>
+      </option>
+    </inspection_tool>
+  </profile>
+</component>
