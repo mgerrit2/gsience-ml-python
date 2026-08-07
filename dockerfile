@@ -21,5 +21,5 @@ RUN mkdir -p uploads
 # Expose port 8000 for FastAPI
 EXPOSE 8000
 
-# Command to run FastAPI server
+# Command to run FastAPI server (Production Mode)
 CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]

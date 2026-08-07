@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from src.routes import animals
 
 app = FastAPI(
-    title="My API",
+    title="GScience API",
     description="Interactive FastAPI Docs",
     version="1.0.0",
 )

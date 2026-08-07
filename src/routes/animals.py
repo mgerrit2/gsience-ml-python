@@ -1,6 +1,10 @@
+import logging
 import shutil
 from pathlib import Path
 from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from pydantic import BaseModel,Field
+
+from src.services.model_service import onnx_service
 
 router = APIRouter()
 
@@ -12,6 +16,38 @@ UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 ALLOWED_EXTENSIONS = {".jpg", ".jpeg"}
 ALLOWED_MIME_TYPES = {"image/jpeg"}
 
+logger = logging.getLogger(__name__)
+
+class PredictRequest(BaseModel):
+    # Expecting 128 numerical values
+    features: list[float] = Field(
+        ..., min_length=128, max_length=128, example=[0.1] * 128
+    )
+
+@router.post("/predict")
+async def predict_animal(request: PredictRequest):
+    try:
+        result = onnx_service.predict(request.features)
+        return {"status": "success", "data": result}
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Inference error: {str(e)}"
+        )
+
+@router.post("/classify")
+async def predict_animal_with_file(file: UploadFile = File(...)):
+    try:
+
+        logger.info(f"Classifying {file.filename}")
+
+        result = await onnx_service.predictWithFile(await file.read())
+        return {"status": "success", "data": result}
+
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500, detail=f"Inference error: {str(e)}"
+        )
 
 @router.post("/upload-image", status_code=status.HTTP_201_CREATED)
 async def upload_animal_image(file: UploadFile = File(...)):
