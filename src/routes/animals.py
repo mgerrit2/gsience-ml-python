@@ -1,7 +1,7 @@
 import logging
 import shutil
 from pathlib import Path
-from fastapi import APIRouter, File, HTTPException, UploadFile, status
+from fastapi import APIRouter, File, HTTPException, UploadFile, status, Query
 from pydantic import BaseModel,Field
 
 from src.services.model_service import onnx_service
@@ -35,15 +35,22 @@ async def predict_animal(request: PredictRequest):
         )
 
 @router.post("/classify")
-async def predict_animal_with_file(file: UploadFile = File(...)):
+async def predict_animal_with_file(
+        file: UploadFile = File(...),
+        top_k: int = Query(5, ge=1)
+):
     try:
+        contents = await file.read()
+        if not contents:
+            raise HTTPException(
+                status_code=400, detail="Uploaded file is empty."
+            )
 
-        logger.info(f"Classifying {file.filename}")
+        predictions = onnx_service.classify_image(contents, top_k=top_k)
+        return {"predictions": predictions}
 
-        result = await onnx_service.predictWithFile(await file.read())
-        return {"status": "success", "data": result}
-
-
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         raise HTTPException(
             status_code=500, detail=f"Inference error: {str(e)}"
