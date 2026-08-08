@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from src.routes import animals
 
@@ -14,6 +15,22 @@ app.include_router(
     animals.router,
     prefix="/animals",
     tags=["Animals"],
+)
+
+# Specify the origins that are allowed to make requests to your API
+origins = [
+    "http://localhost:4200",  # Default Angular dev server
+    "http://localhost:3000",  # Default React/Next.js dev server
+    "http://localhost:8080",  # Default Vue dev server
+    # "https://your-production-domain.com",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,            # List of allowed origins
+    allow_credentials=True,           # Allow cookies / authentication headers
+    allow_methods=["*"],              # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
+    allow_headers=["*"],              # Allow all headers
 )
 
 @app.get("/")
