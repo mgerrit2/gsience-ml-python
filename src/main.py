@@ -20,9 +20,7 @@ app.include_router(
 # Specify the origins that are allowed to make requests to your API
 origins = [
     "http://localhost:4200",  # Default Angular dev server
-    "http://localhost:3000",  # Default React/Next.js dev server
-    "http://localhost:8080",  # Default Vue dev server
-    # "https://your-production-domain.com",
+    "https://gsience-ml-python.onrender.com", # dev python server
 ]
 
 app.add_middleware(
