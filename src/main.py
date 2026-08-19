@@ -19,8 +19,11 @@ app.include_router(
 
 # Specify the origins that are allowed to make requests to your API
 origins = [
-    "http://localhost:4200",  # Default Angular dev server
-    "https://gscience-ai-ui.onrender.com", # dev python server
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+    "http://localhost:4200",
+    "https://hoppscotch.io",  # Explicitly allow Hoppscotch Web UI
+    "https://gscience-ai-ui.onrender.com",
 ]
 
 app.add_middleware(
