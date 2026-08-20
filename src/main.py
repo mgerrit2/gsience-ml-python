@@ -1,7 +1,13 @@
-from fastapi import FastAPI
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from src.routes import animals
+
+import redis.asyncio as aioredis
+
+from src.db.redis import init_redis, close_redis, get_redis
 
 app = FastAPI(
     title="GScience API for testing AI models",
@@ -34,7 +40,36 @@ app.add_middleware(
     allow_headers=["*"],              # Allow all headers
 )
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # 1. Startup: Open connection pool
+    await init_redis()
+    yield
+    # 2. Shutdown: Close connection pool
+    await close_redis()
+
 @app.get("/")
 def root():
     return {"message": "API is running"}
+
+app = FastAPI(title="FastAPI Redis Integration", lifespan=lifespan)
+
+
+# Example endpoint using FastAPI Dependency Injection
+@app.get("/cache/{key}")
+async def get_cache_value(
+    key: str,
+    redis: aioredis.Redis = Depends(get_redis)
+):
+    value = await redis.get(key)
+    return {"key": key, "value": value}
+
+@app.post("/cache/{key}")
+async def set_cache_value(
+    key: str,
+    value: str,
+    redis: aioredis.Redis = Depends(get_redis)
+):
+    await redis.set(key, value, ex=3600)  # Expires in 1 hour
+    return {"status": "success", "key": key, "value": value}
 
