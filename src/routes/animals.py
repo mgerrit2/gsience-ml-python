@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Annotated
 
 from fastapi import APIRouter, File, HTTPException, UploadFile, status, Query
+from pydantic import BaseModel
 
 from src.schemes.PredictionResult import PredictionResult
 from src.services.model_service import onnx_service
@@ -19,10 +20,13 @@ ALLOWED_MIME_TYPES = {"image/jpeg"}
 
 logger = logging.getLogger(__name__)
 
+class PredictionResponse(BaseModel):
+    predictions: list[PredictionResult]
+
 @router.post(
     "/classifyDogAndCats",
     status_code=status.HTTP_200_OK,
-    response_model=list[PredictionResult],
+    response_model=PredictionResponse,
     responses={
         200: {
             "description": "Successfully retrieved list",
