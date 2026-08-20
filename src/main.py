@@ -5,6 +5,7 @@ from fastapi import FastAPI, Depends, Path
 from fastapi.middleware.cors import CORSMiddleware
 import redis.asyncio as aioredis
 
+from src.middleware.tracker import track_visitor
 from src.routes import animals
 from src.db.redis import init_redis, close_redis, get_redis
 
@@ -40,6 +41,7 @@ app = FastAPI(
         "name": "MIT License",
         "url": "https://opensource.org/licenses/MIT",
     },
+    dependencies=[Depends(track_visitor)]
 )
 
 # 4. Configure CORS Middleware
@@ -87,3 +89,15 @@ async def set_cache_value(
 ):
     await redis.set(key, value, ex=3600)  # Expires in 1 hour
     return {"status": "success", "key": key, "value": value}
+
+
+@app.get("/stats")
+async def get_service_usage(redis: Annotated[aioredis.Redis, Depends(get_redis)]):
+    """Returns total accesses and count of unique users."""
+    total_requests = await redis.get("stats:total_requests") or 0
+    unique_users = await redis.scard("stats:unique_visitors") or 0
+
+    return {
+        "total_requests": int(total_requests),
+        "unique_users_tracked": unique_users,
+    }

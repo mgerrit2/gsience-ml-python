@@ -1,7 +1,14 @@
 import os
 import redis.asyncio as aioredis
 
-REDIS_URL = os.getenv("REDIS_URL", "redis://red-d8vea2r7uimc738bibmg:6379")
+# Read environment variable with a safe fallback
+raw_url = os.getenv("REDIS_URL")
+
+# Fallback if raw_url is missing, empty, or None
+if not raw_url or not raw_url.strip():
+    REDIS_URL = "redis://127.0.0.1:6379/0"
+else:
+    REDIS_URL = raw_url.strip().strip("'\"")  # Strip whitespace and extraQuotes
 
 # Global client reference
 redis_client: aioredis.Redis | None = None
