@@ -15,7 +15,7 @@
     <option name="ADD_SOURCE_ROOTS" value="true" />
     <option name="RUN_TOOL" value="" />
     <option name="SCRIPT_NAME" value="uvicorn" />
-    <option name="PARAMETERS" value="src.main:app --reload" />
+    <option name="PARAMETERS" value="src.main:app --reload --port 8000 --workers 4" />
     <option name="SHOW_COMMAND_LINE" value="false" />
     <option name="EMULATE_TERMINAL" value="false" />
     <option name="MODULE_MODE" value="true" />
