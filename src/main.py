@@ -1,5 +1,7 @@
 from contextlib import asynccontextmanager
-from fastapi import FastAPI, Depends
+from typing import Annotated
+
+from fastapi import FastAPI, Depends, Path
 from fastapi.middleware.cors import CORSMiddleware
 import redis.asyncio as aioredis
 
@@ -71,17 +73,17 @@ def root():
 
 @app.get("/cache/{key}")
 async def get_cache_value(
-    key: str,
-    redis: aioredis.Redis = Depends(get_redis)
+    key: Annotated[str, Path(description="The cache key to retrieve")],
+    redis:Annotated[aioredis.Redis, Depends(get_redis)]
 ):
     value = await redis.get(key)
     return {"key": key, "value": value}
 
 @app.post("/cache/{key}")
 async def set_cache_value(
-    key: str,
+    key: Annotated[str, Path(description="The cache key to retrieve")],
     value: str,
-    redis: aioredis.Redis = Depends(get_redis)
+    redis: Annotated[aioredis.Redis, Depends(get_redis)]
 ):
     await redis.set(key, value, ex=3600)  # Expires in 1 hour
     return {"status": "success", "key": key, "value": value}
