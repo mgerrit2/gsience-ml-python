@@ -1,61 +1,74 @@
 from contextlib import asynccontextmanager
-
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
-
-from src.routes import animals
-
 import redis.asyncio as aioredis
 
+from src.routes import animals
 from src.db.redis import init_redis, close_redis, get_redis
 
+# 1. Lifespan context manager
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup: Open Redis connection pool
+    await init_redis()
+    yield
+    # Shutdown: Close Redis connection pool
+    await close_redis()
+
+# 2. OpenAPI tags metadata for Swagger UI
+tags_metadata = [
+    {
+        "name": "Animals",
+        "description": "ONNX-powered image classification endpoints for identifying animal species.",
+    },
+]
+
+# 3. Single FastAPI Instance
 app = FastAPI(
-    title="GScience API for testing AI models",
-    description="Interactive FastAPI Docs",
+    title="FastAPI GScience AI Integration",
+    description="Dev FastAPI service for ONNX image classification and Redis visitor tracking.",
     version="1.0.0",
+    openapi_tags=tags_metadata,
+    lifespan=lifespan,
+    contact={
+        "name": "Gerrits marc",
+        "email": "gerrits.marc@hotmail.com",
+    },
+    license_info={
+        "name": "MIT License",
+        "url": "https://opensource.org/licenses/MIT",
+    },
 )
 
-# 2. Include endpoint routes (best practice: add prefix and tags)
-# 2. Include the animals router
+# 4. Configure CORS Middleware
+origins = [
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+    "http://localhost:4200",
+    "https://hoppscotch.io",
+    "https://gscience-ai-ui.onrender.com",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# 5. Include Routers
 app.include_router(
     animals.router,
     prefix="/animals",
     tags=["Animals"],
 )
 
-# Specify the origins that are allowed to make requests to your API
-origins = [
-    "http://127.0.0.1:8000",
-    "http://localhost:8000",
-    "http://localhost:4200",
-    "https://hoppscotch.io",  # Explicitly allow Hoppscotch Web UI
-    "https://gscience-ai-ui.onrender.com",
-]
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=origins,            # List of allowed origins
-    allow_credentials=True,           # Allow cookies / authentication headers
-    allow_methods=["*"],              # Allow all HTTP methods (GET, POST, PUT, DELETE, etc.)
-    allow_headers=["*"],              # Allow all headers
-)
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    # 1. Startup: Open connection pool
-    await init_redis()
-    yield
-    # 2. Shutdown: Close connection pool
-    await close_redis()
-
+# 6. Endpoints
 @app.get("/")
 def root():
     return {"message": "API is running"}
 
-app = FastAPI(title="FastAPI Redis Integration", lifespan=lifespan)
-
-
-# Example endpoint using FastAPI Dependency Injection
 @app.get("/cache/{key}")
 async def get_cache_value(
     key: str,
@@ -72,4 +85,3 @@ async def set_cache_value(
 ):
     await redis.set(key, value, ex=3600)  # Expires in 1 hour
     return {"status": "success", "key": key, "value": value}
-
