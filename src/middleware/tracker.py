@@ -3,8 +3,16 @@ from fastapi import Request, Depends
 import redis.asyncio as aioredis
 from src.db.redis import get_redis
 
+# Paths to exclude from visitor tracking
+EXCLUDED_PATHS = ("/cache", "/stats")
 
 async def track_visitor(request: Request, redis: Annotated[aioredis.Redis, Depends(get_redis)]):
+
+    """Tracks overall request count and unique visitor IPs in Redis."""
+    # Exclude all cache endpoints from visitor tracking
+    if request.url.path.startswith(EXCLUDED_PATHS):
+        return
+
     """Tracks overall request count and unique visitor IPs in Redis."""
     # 1. Get client IP address
     client_ip = request.client.host if request.client else "unknown"
