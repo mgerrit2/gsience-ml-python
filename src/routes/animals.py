@@ -1,7 +1,10 @@
 import logging
 from pathlib import Path
+from typing import Annotated
+
 from fastapi import APIRouter, File, HTTPException, UploadFile, status, Query
 
+from src.schemes.PredictionResult import PredictionResult
 from src.services.model_service import onnx_service
 
 router = APIRouter()
@@ -16,10 +19,28 @@ ALLOWED_MIME_TYPES = {"image/jpeg"}
 
 logger = logging.getLogger(__name__)
 
-@router.post("/classifyDogAndCats")
+@router.post(
+    "/classifyDogAndCats",
+    status_code=status.HTTP_200_OK,
+    response_model=list[PredictionResult],
+    responses={
+        200: {
+            "description": "Successfully retrieved list",
+            # Content schema is automatically generated via response_model=list[CompanyDTO]
+        },
+        400: {"description": "Bad Request, missing required fields."},
+        401: {"description": "Unauthorized"},
+        403: {"description": "Forbidden"},
+        404: {"description": "Not Found"},
+        406: {"description": "Not Acceptable"},
+        415: {"description": "Bad Request, missing required fields."},
+        429: {"description": "Retry After Some Time"},
+        500: {"description": "Internal Server Error" },
+    },
+)
 async def predict_animal_with_file(
-        file: UploadFile = File(...),
-        top_k: int = Query(5, ge=1)
+        file: Annotated[UploadFile, File(...)],
+        top_k: Annotated[int, Query(ge=1)] = 5
 ):
     try:
         contents = await file.read()
