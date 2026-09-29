@@ -1,0 +1,34 @@
+{
+  "POST Classify Image" : {
+    "transaction" : "POST Classify Image",
+    "sampleCount" : 2900,
+    "errorCount" : 51,
+    "errorPct" : 1.7586207,
+    "meanResTime" : 126567.41206896542,
+    "medianResTime" : 144790.5,
+    "minResTime" : 761.0,
+    "maxResTime" : 209926.0,
+    "pct1ResTime" : 171888.40000000002,
+    "pct2ResTime" : 188948.94999999998,
+    "pct3ResTime" : 204864.16999999998,
+    "throughput" : 6.601035679735959,
+    "receivedKBytesPerSec" : 3.150322938598987,
+    "sentKBytesPerSec" : 154.23323422295567
+  },
+  "Total" : {
+    "transaction" : "Total",
+    "sampleCount" : 2900,
+    "errorCount" : 51,
+    "errorPct" : 1.7586207,
+    "meanResTime" : 126567.41206896542,
+    "medianResTime" : 144790.5,
+    "minResTime" : 761.0,
+    "maxResTime" : 209926.0,
+    "pct1ResTime" : 171888.40000000002,
+    "pct2ResTime" : 188948.94999999998,
+    "pct3ResTime" : 204864.16999999998,
+    "throughput" : 6.601035679735959,
+    "receivedKBytesPerSec" : 3.150322938598987,
+    "sentKBytesPerSec" : 154.23323422295567
+  }
+}

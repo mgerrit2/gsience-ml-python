@@ -44,6 +44,7 @@ class AnimalModelService:
 
         # 1. Initialize ONNX Session with options
         options = ort.SessionOptions()
+        options.enable_cpu_mem_arena = False  # Forces release back to OS heap more aggressively
         options.graph_optimization_level = (
             ort.GraphOptimizationLevel.ORT_ENABLE_ALL
         )
