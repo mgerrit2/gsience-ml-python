@@ -12,6 +12,10 @@ from src.middleware.tracker import track_visitor
 from src.routes import animals
 from src.db.redis import init_redis, close_redis, get_redis
 
+from slowapi import _rate_limit_exceeded_handler
+from src.limiter import limiter  # Import from the separate file
+from slowapi.errors import RateLimitExceeded
+
 # 1. Lifespan context manager
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -58,6 +62,9 @@ app = FastAPI(
     },
     dependencies=[Depends(track_visitor)]
 )
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # 4. Configure CORS Middleware
 origins = [

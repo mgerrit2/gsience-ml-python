@@ -2,11 +2,13 @@ import logging
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, File, HTTPException, UploadFile, status, Query
+from fastapi import APIRouter, File, HTTPException, UploadFile, status, Query,Request
 from pydantic import BaseModel
 
 from src.schemes.PredictionResult import PredictionResult
 from src.services.model_service import onnx_service
+
+from src.limiter import limiter
 
 router = APIRouter()
 
@@ -20,8 +22,11 @@ ALLOWED_MIME_TYPES = {"image/jpeg"}
 
 logger = logging.getLogger(__name__)
 
+
+
 class PredictionResponse(BaseModel):
     predictions: list[PredictionResult]
+
 
 @router.post(
     "/classifyDogAndCats",
@@ -38,13 +43,15 @@ class PredictionResponse(BaseModel):
         404: {"description": "Not Found"},
         406: {"description": "Not Acceptable"},
         415: {"description": "Bad Request, missing required fields."},
-        429: {"description": "Retry After Some Time"},
+        429: {"description": "To many requests"},
         500: {"description": "Internal Server Error" },
     },
 )
+@limiter.limit("100/minute")  # Limits this endpoint to 5 requests per minute per user
 async def predict_animal_with_file(
+        request: Request,
         file: Annotated[UploadFile, File(...)],
-        top_k: Annotated[int, Query(ge=1)] = 5
+        top_k: Annotated[int, Query(ge=1, description="Number of top results")] = 5,
 ):
     try:
         contents = await file.read()
