@@ -29,6 +29,10 @@ RUN mkdir -p uploads
 # Switch to the non-root user
 USER appuser
 
+# Optional: Run pytest during the image build process
+# (Note: If tests fail, the docker build will fail and stop here)
+RUN PYTHONPATH=. pytest -o cache_dir=/tmp/.pytest_cache
+
 # Expose port 8000 for FastAPI
 EXPOSE 8000
 
