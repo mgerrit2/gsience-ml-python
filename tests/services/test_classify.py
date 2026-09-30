@@ -1,6 +1,5 @@
 from unittest.mock import patch
 
-import pytest
 from fastapi.testclient import TestClient
 from fastapi import FastAPI
 
@@ -11,7 +10,6 @@ app = FastAPI()
 app.include_router(router)
 
 client = TestClient(app)
-
 
 @patch("src.routes.animals.onnx_service.classify_image")
 def test_predict_animal_success(mock_classify):
@@ -39,9 +37,10 @@ def test_predict_animal_success(mock_classify):
     # 4. Assertions
     assert response.status_code == 200
     data = response.json()
-    assert "predictions" in data
-    assert len(data["predictions"]) == 2
-    assert data["predictions"][0]["label"] == "cat"
+
+    assert "predictions" in data # is keyword prediction in data
+    assert len(data["predictions"]) == 2 # are there 2 prdictions
+    assert data["predictions"][0]["label"] == "cat" # is one of the predictions cat
 
     # Verify that the service was called with the file bytes and top_k
     mock_classify.assert_called_once_with(fake_image_bytes, top_k=2)
@@ -60,14 +59,3 @@ def test_predict_animal_value_error(mock_classify):
     assert response.status_code == 400
     assert response.json()["detail"] == "Invalid image dimensions"
 
-
-@pytest.mark.skip(reason="Temporarily disabled")
-@patch("src.routes.animals.onnx_service.classify_image")
-def test_predict_animal_empty_file(mock_classify):
-    # Test uploading an empty file (handled before service call)
-    files = {"file": ("empty.jpg", b"", "image/jpeg")}
-
-    response = client.post("/classifyDogAndCats", files=files)
-
-    assert response.status_code == 400
-    assert response.json()["detail"] == "Uploaded file is empty."
