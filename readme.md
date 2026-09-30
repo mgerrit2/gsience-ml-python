@@ -8,3 +8,7 @@ http://127.0.0.1:8000/docs
 # Render servivce
 ## Basis url
 https://gsience-ml-python.onrender.com/
+
+
+## Isues
+### Debugging not working 
