@@ -49,7 +49,7 @@ class PredictionResponse(BaseModel):
 )
 @limiter.limit("100/minute")  # Limits this endpoint to 5 requests per minute per user
 async def predict_animal_with_file(
-        request: Request,
+        request: Request, # the raw request object
         file: Annotated[UploadFile, File(...)],
         top_k: Annotated[int, Query(ge=1, description="Number of top results")] = 5,
 ):
