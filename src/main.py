@@ -68,7 +68,6 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # 4. Configure CORS Middleware
 origins = [
-    "http://127.0.0.1:8000",
     "http://localhost:8000",
     "http://localhost:4200",
     "https://hoppscotch.io",
