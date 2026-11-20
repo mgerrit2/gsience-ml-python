@@ -4,6 +4,7 @@ from typing import Annotated, Literal, Any
 from fastapi import FastAPI, Depends, Path, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 import redis.asyncio as aioredis
+from prometheus_fastapi_instrumentator import Instrumentator
 from pydantic import BaseModel, Field
 from redis import RedisError
 from rich import status
@@ -62,6 +63,9 @@ app = FastAPI(
     },
     dependencies=[Depends(track_visitor)]
 )
+
+# Automatische HTTP-metrics (aantal requests, latency, statuscodes) + /metrics endpoint
+Instrumentator().instrument(app).expose(app)
 
 app.state.limiter = limiter
 app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
