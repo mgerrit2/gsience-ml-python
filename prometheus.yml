@@ -3,5 +3,7 @@ global:
 
 scrape_configs:
   - job_name: "fastapi"
+    metrics_path: /metrics
+    scheme: https
     static_configs:
-      - targets: ["172.22.128.1:8000"] # of de servicenaam in Docker Compose
+      - targets: ["gsience-ml-python.onrender.com"]
